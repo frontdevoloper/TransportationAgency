@@ -14,10 +14,17 @@ namespace TransportationAgency
     public partial class SelectionTransportation : Form
     {       
         public int WeightOfCargo { get; set; }
-        public string StartingPoint { get; set; }
+        public string StartingPoint { get; set; }        
         public string EndPoint { get; set; }
         public double DistanceCitites { get; set; }
-        public double TimeOfDelivery { get; set; }    
+        public double TimeOfDelivery { get; set; }
+        public int RandomNumber { get; set; } = new Random().Next(30, 100);
+        public int Cost { get; set; }
+
+        private Transport selectedTransport;
+
+        private City startCity;
+        private City endCity;
 
         private List<Transport> transports;
 
@@ -32,10 +39,10 @@ namespace TransportationAgency
         private void SelectionTransportation_Load(object sender, EventArgs e)
         {
             StartPointTextBox.Text = StartingPoint;
-            EndPointTextBox.Text = EndPoint;
+            EndPointTextBox.Text = EndPoint;           
 
-            var startCity = Cities.listOfCities.First(i => i.Name == StartingPoint);
-            var endCity = Cities.listOfCities.First(i => i.Name == EndPoint);
+            startCity = Cities.listOfCities.First(i => i.Name == StartingPoint);
+            endCity = Cities.listOfCities.First(i => i.Name == EndPoint);            
 
             DistanceCitites = GetDistanceCities(startCity.Latitude, startCity.Longitude, endCity.Latitude, endCity.Longitude);
 
@@ -52,16 +59,43 @@ namespace TransportationAgency
 
         private void SendButton_Click(object sender, EventArgs e)
         {
-            SendButton.Enabled = false;
-            RefuseButton.Enabled = false;
-            StopDeliveryButton.Visible = true;
-            TimeDeliveryTimer.Interval = (int)(TimeOfDelivery * 60);
-            StatusProgressBar.Maximum = 100;
-            TimeDeliveryTimer.Enabled = true;
+            var payment = new Payment(Cost, (int)TimeOfDelivery);
+            payment.Show();
+            payment.FormClosed += new FormClosedEventHandler(Payment_FormClosed);
+            this.Enabled = false;
+        }
+
+        private void Payment_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            if (Payment.IsPayment)
+            {
+                this.Enabled = true;
+
+                ButtonUnVisible(SendButton, RefuseButton);
+                ButtonVisible(StopDeliveryButton);
+
+                TimeDeliveryTimer.Interval = (int)(TimeOfDelivery * 60);
+
+                StatusProgressBar.Maximum = 100;
+
+                TimeDeliveryTimer.Enabled = true;
+
+                selectedTransport.Accident += Transport_Accident;
+            }
+            else
+            {
+                MessageBox.Show("Не достаточно средств", "Закройте эту форму", MessageBoxButtons.OK);
+                this.Enabled = true;
+            }
         }
 
         private void TimeDeliveryTimer_Tick(object sender, EventArgs e)
         {
+            if (RandomNumber == StatusProgressBar.Value)
+            {
+                selectedTransport.AccidentOccurrence(startCity, endCity);
+            }            
+
             if (StatusProgressBar.Value < StatusProgressBar.Maximum)
             {
                 StatusProgressBar.Value += 1;
@@ -71,13 +105,23 @@ namespace TransportationAgency
             {
                 DeliveryComplited();
             }
+        }        
+
+        private void Transport_Accident(object sender, AccidentEventAgrs e)
+        {
+            TimeDeliveryTimer.Stop();
+            MessageBox.Show($"Произошла авария транспорт {e.TypeTransport} на дороге {e.TypeRoad} средства возмещены в двойном размере", "", MessageBoxButtons.OK);
+            selectedTransport.Accident -= Transport_Accident;
+            Bank.AddMoney(Cost * 2);
+            this.Close();
         }
 
         private void DeliveryComplited()
         {
             TimeDeliveryTimer.Dispose();
-            StopDeliveryButton.Visible = false;
-            MessageBox.Show("Груз доставлен", "closing form", MessageBoxButtons.OK);
+            new TransportationComplited().Show();
+                        
+            this.Close();            
         }
 
         private static List<Transport> CreationTransport()
@@ -125,7 +169,9 @@ namespace TransportationAgency
                 {
                     TimeOfDelivery = Math.Round((DistanceCitites / transport.DeliverySpeed));
                     TimeOfDeliveryTextBox.Text = TimeOfDelivery.ToString();
-                    CostOfDeliveryTextBox.Text = (transport.UnitCost * TimeOfDelivery).ToString();                    ;
+                    Cost = (int)(transport.UnitCost * TimeOfDelivery);
+                    CostOfDeliveryTextBox.Text = Cost.ToString();
+                    selectedTransport = transport;
                 }
             }
         }
@@ -150,5 +196,21 @@ namespace TransportationAgency
         {
             this.Close();
         }
+
+        private static void ButtonVisible(params Button[] buttons)
+        {
+            for (int i = 0; i < buttons.Length; i++)
+            {
+                buttons[i].Visible = true;
+            }
+        }
+
+        private static void ButtonUnVisible(params Button[] buttons)
+        {
+            for (int i = 0; i < buttons.Length; i++)
+            {
+                buttons[i].Visible = false;
+            }
+        }        
     }
 }

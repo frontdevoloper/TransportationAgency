@@ -34,7 +34,7 @@ namespace TransportationAgency
             {
                 for (int j = 0; j < coordinatesOfCities[i].Length; j++)
                 {
-                    listOfCities[i] = new City(cityNames[i], random.Next(10000, 2000000), coordinatesOfCities[i][j], coordinatesOfCities[i][++j]);
+                    listOfCities[i] = new City(cityNames[i], random.Next(10000, 2000000), coordinatesOfCities[i][j], coordinatesOfCities[i][++j], random.Next(1, 20));
                 }                
             }
         }

@@ -220,7 +220,7 @@ namespace TransportationAgency
             this.Controls.Add(this.label1);
             this.Name = "SelectionTransportation";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "SelectionTransportation";
+            this.Text = "SelectionTransportation";            
             this.Load += new System.EventHandler(this.SelectionTransportation_Load);
             this.ResumeLayout(false);
             this.PerformLayout();

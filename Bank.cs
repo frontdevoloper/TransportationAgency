@@ -43,12 +43,15 @@ namespace TransportationAgency
             }                        
         }
 
-        public static void RemoveMoney(int money)
+        public static bool RemoveMoney(int money)
         {
             if (Money > money)
             {
                 Money -= money;
+                return true;
             }
+
+            return false;
         }
 
         private void ExitButton_Click(object sender, EventArgs e)

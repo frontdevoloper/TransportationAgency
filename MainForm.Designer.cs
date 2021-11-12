@@ -155,7 +155,7 @@ namespace TransportationAgency
             // AdditionalFeaturesCheckBox
             // 
             this.AdditionalFeaturesCheckBox.AutoSize = true;
-            this.AdditionalFeaturesCheckBox.Location = new System.Drawing.Point(486, 137);
+            this.AdditionalFeaturesCheckBox.Location = new System.Drawing.Point(486, 140);
             this.AdditionalFeaturesCheckBox.Name = "AdditionalFeaturesCheckBox";
             this.AdditionalFeaturesCheckBox.Size = new System.Drawing.Size(200, 19);
             this.AdditionalFeaturesCheckBox.TabIndex = 4;

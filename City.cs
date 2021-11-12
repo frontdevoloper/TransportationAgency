@@ -20,8 +20,9 @@ namespace TransportationAgency
         public string СityStatus { get; set; }
         public double Latitude { get; set; }
         public double Longitude { get; set; }
+        public bool ExpressWay { get; set; }
 
-        public City(string name, int size, double latitude, double longitude)
+        public City(string name, int size, double latitude, double longitude, int expressWay)
         {
             Name = name;
             Size = size;
@@ -29,13 +30,14 @@ namespace TransportationAgency
             СityStatus = GetCityStatus(Size);
             Latitude = latitude;
             Longitude = longitude;
+            ExpressWay = expressWay > 15;
         }
 
         private static string GetCityStatus(int size)
         {
             string result;
 
-            if (size > (int)SizeCity.big)
+            if (size < (int)SizeCity.big && size > (int)SizeCity.middle)
             {
                 result = "big";
             }
